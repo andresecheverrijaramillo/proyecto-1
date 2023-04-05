@@ -1,0 +1,60 @@
+syntax = "proto3";
+import "google/protobuf/struct.proto";
+package mypackage;
+
+message Productps{
+    string id_product = 1;
+    string name = 2;
+    string userName = 3;
+}
+
+message TransactionResponse{
+    int32 status_code = 100;
+}
+
+service ProductService{
+    rpc AddProduct(Productps) returns (TransactionResponse) {}
+    rpc DeleteProduct(Productps) returns (TransactionResponse) {}
+}
+
+message ProductList{
+    repeated int32 product_ids = 8;
+}
+
+
+message Inventory{
+    repeated int32 Inventory = 8;
+}
+
+message Request{
+}
+
+message LastIdd{
+    string LastIdd = 8;
+}
+
+message Product{
+    string id = 1;
+    string name = 2;
+}
+
+
+message Queueitems {
+    int32 method = 1;
+    string password = 2;
+    string user = 3;
+    google.protobuf.Struct variables = 4;
+  }
+
+service InventoryService {
+    rpc GetInventory(Request) returns (Inventory){}
+    rpc GetInventoryLastIdd(Request) returns (LastIdd){}
+    rpc addProducts(Product) returns (TransactionResponse){}
+}
+
+service ReplicationService {
+    rpc GetInventory(Request) returns (Request){}
+}
+
+
+

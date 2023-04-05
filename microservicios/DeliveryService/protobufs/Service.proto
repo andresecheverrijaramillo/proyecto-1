@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+message Delivery{
+    string delivery = 1;
+}
+
+message Request{
+}
+
+service DeliveryService {
+    rpc GetDelivery(Request) returns (Delivery){}
+}

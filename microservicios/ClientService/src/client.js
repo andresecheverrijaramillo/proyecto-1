@@ -28,11 +28,10 @@ const server = new grpc.Server();
 const replicationService = grpc.loadPackageDefinition(packageDefinition).ReplicationService;
 const productService = grpc.loadPackageDefinition(packageDefinition).ProductService;
 const inventoryService = grpc.loadPackageDefinition(packageDefinition).InventoryService;
-console.log(grpc.loadPackageDefinition(packageDefinition).ReplicationService);
-console.log(replicationService);
-
 // se crea la coexion con el servidor
 const externalServer = new replicationService(MOM, grpc.credentials.createInsecure());
+const client = new productService(MOM, grpc.credentials.createInsecure());
+const client2 = new inventoryService(MOM, grpc.credentials.createInsecure());
 
 function checkServer() {
   externalServer.waitForReady(new Date().setTime(new Date().getTime() + 5000), (err) => {
@@ -43,11 +42,13 @@ function checkServer() {
     } else {
       console.log('El servidor externo 3 está prendido.');
       // Si el servidor externo 3 está prendido, continuar con la ejecución del servidor
+      
       setTimeout(checkServer, 10000);
+      }
     }
-  });
+  );
 }
-
+//añadir un usario
 function addUser(userName, userPassword) {
   fs.readFile('users.json', 'utf-8', (err, data) => {
     if (err) throw err;
@@ -70,13 +71,13 @@ function addUser(userName, userPassword) {
     });
   });
 }
-
+//encontrar un usuario
 function findUser(userName, userPassword) {
   const users = JSON.parse(fs.readFileSync('users.json', 'utf8'));
   const foundUser = users.user.find(user => user.name === userName && user.password === userPassword);
   return foundUser;
 }
-
+//añadir una peticion a la queue
 function addToQueue(userName, method, variables) {
   const existingJSON = JSON.parse(fs.readFileSync('queues.json', 'utf-8'));
   const newJSON = { [userName]: [{ "method": method, "variables": variables }] }
@@ -84,11 +85,165 @@ function addToQueue(userName, method, variables) {
   fs.writeFileSync('queues.json', JSON.stringify(combinedJSON));
 }
 
+//verificar si tiene algo en la cola
+function hasData(obj, prop) {
+  if (obj.hasOwnProperty(prop)) {
+    if (Array.isArray(obj[prop])) {
+      return obj[prop].length > 0;
+    } else {
+      return Object.keys(obj[prop]).length > 0;
+    }
+  } else {
+    return false;
+  }
+}
+//borrar usuario del json de queues
+function deleteUserFromQueue(userToDelete) {
+  const existingJSON = JSON.parse(fs.readFileSync('queues.json', 'utf-8'));
+  delete existingJSON[userToDelete];
+  fs.writeFileSync('queues.json', JSON.stringify(existingJSON));
+}
+
+//borrar request de un usuario
+function deleteFirstFromUser(userName) {
+  const existingJSON = JSON.parse(fs.readFileSync('queues.json', 'utf-8'));
+  if (existingJSON.hasOwnProperty(userName)) {
+    existingJSON[userName].shift();
+    fs.writeFileSync('queues.json', JSON.stringify(existingJSON));
+  }
+}
+//ejecucion de la instruccion en cola
+function doSomethingForKey(user, key, value) {
+  const method = value.method;
+  const variables = value.variables;
+  while(hasData(key)){
+    key
+    switch (method) {
+      //getinventory
+      case 2:{
+        client2.GetInventory((err, data) => {
+          if(err){
+            callback(null,"0");
+          } else {
+            callback(null,data);
+          }
+        })
+      }
+      //addProducts to inventory
+      case 3:{
+        const userArray = variables[username];
+        const userObj = userArray[0].variables; 
+        const idProduct=userObj.id_product;
+        const productName=userObj.name;
+        client2.addProducts({id:idProduct,name:productName},(err, data) => {
+          if(err){
+            callback(null,"0");
+          } else {
+            callback(null,data);
+          }
+        })
+      }
+      //GetInventoryLastIdd
+      case 4:{
+        client2.GetInventoryLastIdd((err, data) => {
+          if(err){
+            callback(null,"0");
+          } else {
+            callback(null,data);
+          }
+        })
+      }
+      //AddProduct to car
+      case 5:{
+        const userArray = variables[username];
+        const userObj = userArray[0].variables; 
+        const idProduct=userObj.id_product;
+        const productName=userObj.name;
+        client.AddProduct({id:idProduct,name:productName,userName:username},(err, data) => {
+          if(err){
+            callback(null,"0");
+          } else {
+            callback(null,data);
+          }
+        })
+      }
+      //DeleteProduct from car
+      case 6:{
+        const userArray = variables[username];
+        const userObj = userArray[0].variables; 
+        const idProduct=userObj.id_product;
+        const productName=userObj.name;
+        client.DeleteProduct({id:idProduct,name:productName,userName:username},(err, data) => {
+          if(err){
+            callback(null,"0");
+          } else {
+            callback(null,data);
+          }
+        })}
+    }
+  }
+  
+}
+
+//verificar si hay instrucciones
+function instrucciones(){
+  const existingJSON = JSON.parse(fs.readFileSync('queues.json', 'utf-8'));
+  for (const user in existingJSON) {
+    if (user !== "userName2") {
+      const values = existingJSON[user];
+      for (const user in existingJSON) {
+        if (user !== "userName2") {
+          const values = existingJSON[user];
+          for (let i = 0; i < values.length; i++) {
+            const { method, variables } = values[i];
+            doSomethingForKey(user, i.toString(), method, variables);
+          }
+        }
+      }
+    }
+  }}
+
+  //cifrar
+  function cifradoCesar(texto, desplazamiento) {
+    let resultado = "";
+    for (let i = 0; i < texto.length; i++) {
+      let caracter = texto[i];
+      if (caracter.match(/[a-z]/i)) {
+        let codigoAscii = texto.charCodeAt(i);
+        if (codigoAscii >= 65 && codigoAscii <= 90) {
+          caracter = String.fromCharCode(((codigoAscii - 65 + desplazamiento) % 26) + 65);
+        } else if (codigoAscii >= 97 && codigoAscii <= 122) {
+          caracter = String.fromCharCode(((codigoAscii - 97 + desplazamiento) % 26) + 97);
+        }
+      }
+      resultado += caracter;
+    }
+    return resultado;
+  }
+
+//Servicios
 server.addService(proto.ReplicationService.service, {
-  GetInventory2: (call, callback) => {
-    callback(null, "0");
+  Requests: (call, callback) => {
+    const method = call.request.method; 
+    const password = call.request.password; 
+    const user = call.request.user; 
+    const variablesString = call.request.variables;
+    const variables = JSON.parse(variablesString);
+    if(method!=1){
+    if(findUser(user,password)){
+      addToQueue(user,method,variables);
+      callback(null,"1");
+      }
+    else{
+      callback(null,"0");
+      }
+    }
+    else{
+      addUser(user,password);
+    }
   },
-})
+  }
+)
 
 server.bindAsync(
   "127.0.0.1:8082", grpc.ServerCredentials.createInsecure(),

@@ -13,7 +13,8 @@ service InventoryService {
 }
 
 service ReplicationService {
-    rpc Request(Queueitems) returns (TransactionResponse){}
+    rpc Requests(Queueitems) returns (TransactionResponse){}
+    rpc Update(LastIdd) returns (Request){}
 }
 
 message Productps{

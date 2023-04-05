@@ -9,6 +9,8 @@ const PROTO_PATH = process.env.PROTO_PATH;
 const REMOTE_HOST = process.env.REMOTE_HOST;
 const REMOTE_HOST2 = process.env.REMOTE_HOST2;
 const MOM = process.env.MOM;
+const MOM2 = process.env.MOM2;
+global.mainServer = false;
 
 // definir atributos para la conexion con el servidor
 const packageDefinition = protoLoader.loadSync(
@@ -29,21 +31,27 @@ const replicationService = grpc.loadPackageDefinition(packageDefinition).Replica
 const productService = grpc.loadPackageDefinition(packageDefinition).ProductService;
 const inventoryService = grpc.loadPackageDefinition(packageDefinition).InventoryService;
 // se crea la coexion con el servidor
-const externalServer = new replicationService(MOM, grpc.credentials.createInsecure());
-const client = new productService(MOM, grpc.credentials.createInsecure());
-const client2 = new inventoryService(MOM, grpc.credentials.createInsecure());
+const externalServer = new replicationService(MOM2, grpc.credentials.createInsecure());
+const client = new productService(REMOTE_HOST, grpc.credentials.createInsecure());
+const client2 = new inventoryService(REMOTE_HOST2, grpc.credentials.createInsecure());
 
 function checkServer() {
   externalServer.waitForReady(new Date().setTime(new Date().getTime() + 5000), (err) => {
     if (err) {
       console.log('El servidor externo 3 está caído.');
       // Si el servidor externo 3 está caído, continuar verificando
-      setTimeout(checkServer, 10000);
-    } else {
+      global.mainServer=true;
+      instrucciones();
+      setTimeout(checkServer, 5000);
+    } 
+    else {
       console.log('El servidor externo 3 está prendido.');
       // Si el servidor externo 3 está prendido, continuar con la ejecución del servidor
-      
-      setTimeout(checkServer, 10000);
+      if(global.mainServer){
+        //metodo de actualizar el otro mom
+        instrucciones();
+      }
+      setTimeout(checkServer, 5000);
       }
     }
   );
@@ -194,14 +202,16 @@ function instrucciones(){
       for (const user in existingJSON) {
         if (user !== "userName2") {
           const values = existingJSON[user];
-          for (let i = 0; i < values.length; i++) {
+          for (let i = 0; i < values.length;) {
             const { method, variables } = values[i];
             doSomethingForKey(user, i.toString(), method, variables);
+            deleteFirstFromUser(user)
           }
         }
       }
     }
-  }}
+  }
+}
 
   //cifrar
   function cifradoCesar(texto, desplazamiento) {
@@ -246,9 +256,9 @@ server.addService(proto.ReplicationService.service, {
 )
 
 server.bindAsync(
-  "127.0.0.1:8082", grpc.ServerCredentials.createInsecure(),
+  "127.0.0.1:8080", grpc.ServerCredentials.createInsecure(),
   (error, port) => {
-    console.log("Server running at 127.0.0.1:8082");
+    console.log("Server running at 127.0.0.1:8080");
     server.start();
     checkServer();
   }

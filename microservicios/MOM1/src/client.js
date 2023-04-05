@@ -9,7 +9,6 @@ const PROTO_PATH = process.env.PROTO_PATH;
 const REMOTE_HOST = process.env.REMOTE_HOST;
 const REMOTE_HOST2 = process.env.REMOTE_HOST2;
 const MOM = process.env.MOM;
-const MOM2 = process.env.MOM2;
 global.mainServer = false;
 
 // definir atributos para la conexion con el servidor
@@ -31,7 +30,7 @@ const replicationService = grpc.loadPackageDefinition(packageDefinition).Replica
 const productService = grpc.loadPackageDefinition(packageDefinition).ProductService;
 const inventoryService = grpc.loadPackageDefinition(packageDefinition).InventoryService;
 // se crea la coexion con el servidor
-const externalServer = new replicationService(MOM2, grpc.credentials.createInsecure());
+const externalServer = new replicationService(MOM, grpc.credentials.createInsecure());
 const client = new productService(REMOTE_HOST, grpc.credentials.createInsecure());
 const client2 = new inventoryService(REMOTE_HOST2, grpc.credentials.createInsecure());
 

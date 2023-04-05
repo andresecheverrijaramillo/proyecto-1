@@ -4,7 +4,7 @@ import grpc
 import Service_pb2
 import Service_pb2_grpc
 
-HOST = '[::]:8080'
+HOST = '[::]:8082'
 
 class ProductService(Service_pb2_grpc.ProductServiceServicer):
    

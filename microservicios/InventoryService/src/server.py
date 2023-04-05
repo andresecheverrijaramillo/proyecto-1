@@ -4,15 +4,20 @@ import grpc
 import Service_pb2
 import Service_pb2_grpc
 
-HOST = '[::]:8081'
+HOST = '[::]:8083'
 
 class InventoryService(Service_pb2_grpc.InventoryServiceServicer):
     
     def GetInventory(self, request, context):
-        print("Request is received: " + str(request))
+        print("Request is received: ")
         with open("inventory.json","r") as productList:
+            print("inventory: ")
             inventory = json.loads(productList.read())
-        return Service_pb2.Inventory(inventory)
+        print(str(inventory["products"]))
+        my_string = str(json.dumps(inventory["products"]))
+        print(my_string)
+        print(type(my_string))
+        return Service_pb2.Inventory(my_string)
     
     def addProducts(self, request, context):
         productID = str(request.id)
@@ -48,6 +53,7 @@ class InventoryService(Service_pb2_grpc.InventoryServiceServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     Service_pb2_grpc.add_InventoryServiceServicer_to_server(InventoryService(), server)
+    print(HOST)
     server.add_insecure_port(HOST)
     print("Service is running... ")
     server.start()

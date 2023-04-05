@@ -14,7 +14,12 @@ service InventoryService {
 
 service ReplicationService {
     rpc Requests(Queueitems) returns (TransactionResponse){}
-    rpc Update(LastIdd) returns (Request){}
+    rpc Update(Lists) returns (Request){}
+}
+
+message Lists{
+    string queue = 1;
+    string users = 2;
 }
 
 message Productps{

@@ -9,7 +9,6 @@ const PROTO_PATH = process.env.PROTO_PATH;
 const REMOTE_HOST = process.env.REMOTE_HOST;
 const REMOTE_HOST2 = process.env.REMOTE_HOST2;
 const MOM = process.env.MOM;
-const MOM2 = process.env.MOM2;
 global.mainServer = false;
 
 // definir atributos para la conexion con el servidor
@@ -31,22 +30,22 @@ const replicationService = grpc.loadPackageDefinition(packageDefinition).Replica
 const productService = grpc.loadPackageDefinition(packageDefinition).ProductService;
 const inventoryService = grpc.loadPackageDefinition(packageDefinition).InventoryService;
 // se crea la coexion con el servidor
-const externalServer = new replicationService(MOM2, grpc.credentials.createInsecure());
+const externalServer = new replicationService(MOM, grpc.credentials.createInsecure());
 const client = new productService(REMOTE_HOST, grpc.credentials.createInsecure());
 const client2 = new inventoryService(REMOTE_HOST2, grpc.credentials.createInsecure());
 
 function checkServer() {
   externalServer.waitForReady(new Date().setTime(new Date().getTime() + 5000), (err) => {
     if (err) {
-      console.log('El servidor externo 3 está caído.');
-      // Si el servidor externo 3 está caído, continuar verificando
+      //console.log('El servidor externo MOM está caído.');
+      // Si el servidor externo está caído, continuar verificando
       global.mainServer=true;
       instrucciones();
       setTimeout(checkServer, 5000);
     } 
     else {
-      console.log('El servidor externo 3 está prendido.');
-      // Si el servidor externo 3 está prendido, continuar con la ejecución del servidor
+      //console.log('El servidor externo MOM está prendido.');
+      // Si el servidor externo está prendido, continuar con la ejecución del servidor
       if(global.mainServer){
         //metodo de actualizar el otro mom
         instrucciones();
@@ -120,10 +119,12 @@ function deleteFirstFromUser(userName) {
     fs.writeFileSync('queues.json', JSON.stringify(existingJSON));
   }
 }
+
 //ejecucion de la instruccion en cola
 function doSomethingForKey(user, key, value) {
   const method = value.method;
   const variables = value.variables;
+  console.log("metodo "+method + " variables: " + variables);
   while(hasData(key)){
     key
     switch (method) {
@@ -133,7 +134,7 @@ function doSomethingForKey(user, key, value) {
           if(err){
             callback(null,"0");
           } else {
-            callback(null,data);
+            callback(null,"1");
           }
         })
       }
@@ -214,7 +215,7 @@ function instrucciones(){
   }
 }
 
-  //cifrar
+//cifrar
   function cifradoCesar(texto, desplazamiento) {
     let resultado = "";
     for (let i = 0; i < texto.length; i++) {
@@ -240,6 +241,7 @@ server.addService(proto.ReplicationService.service, {
     const user = call.request.user; 
     const variablesString = call.request.variables;
     const variables = JSON.parse(variablesString);
+    console.log("User " + user + " method " + method + " password "+ password + " variables " + variables);
     if(method!=1){
     if(findUser(user,password)){
       addToQueue(user,method,variables);
@@ -257,9 +259,9 @@ server.addService(proto.ReplicationService.service, {
 )
 
 server.bindAsync(
-  "127.0.0.1:8080", grpc.ServerCredentials.createInsecure(),
+  "127.0.0.1:8081", grpc.ServerCredentials.createInsecure(),
   (error, port) => {
-    console.log("Server running at 127.0.0.1:8080");
+    console.log("Server running at 127.0.0.1:8081");
     server.start();
     checkServer();
   }

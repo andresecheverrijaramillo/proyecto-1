@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import grpc from '@grpc/grpc-js';
 import protoLoader from '@grpc/proto-loader';
 import fs from 'fs';
+import { stringify } from 'querystring';
 
 dotenv.config()
 
@@ -86,10 +87,15 @@ function findUser(userName, userPassword) {
 }
 //añadir una peticion a la queue
 function addToQueue(userName, method, variables) {
+  console.log("Hola desde queue");
   const existingJSON = JSON.parse(fs.readFileSync('queues.json', 'utf-8'));
-  const newJSON = { [userName]: [{ "method": method, "variables": variables }] }
-  const combinedJSON = { ...existingJSON, ...newJSON };
-  fs.writeFileSync('queues.json', JSON.stringify(combinedJSON));
+  if (existingJSON[userName]) {
+    existingJSON[userName].push({ "metodo": method, "variables": variables });
+  } else {
+    existingJSON[userName] = [{ "metodo": method, "variables": variables }];
+  }
+  fs.writeFileSync('queues.json', JSON.stringify(existingJSON,null,4));
+  console.log(existingJSON);
 }
 
 //verificar si tiene algo en la cola
@@ -121,78 +127,48 @@ function deleteFirstFromUser(userName) {
 }
 
 //ejecucion de la instruccion en cola
-function doSomethingForKey(user, key, value) {
-  const method = value.method;
-  const variables = value.variables;
-  console.log("metodo "+method + " variables: " + variables);
-  while(hasData(key)){
-    key
-    switch (method) {
+function doSomethingForKey(user, method, strVariables) {
+  console.log("metodo "+method + " variables: " + strVariables);
+  const variables = JSON.parse(strVariables);
       //getinventory
-      case 2:{
-        client2.GetInventory((err, data) => {
+      if(method==2){
+        console.log("Case 2");
+        client2.GetInventory({},(err,data) => {
           if(err){
-            callback(null,"0");
+            console.log(err);   // Se procesa y visualiza por consola el error.
           } else {
-            callback(null,"1");
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
           }
         })
       }
       //addProducts to inventory
-      case 3:{
-        const userArray = variables[username];
-        const userObj = userArray[0].variables; 
-        const idProduct=userObj.id_product;
-        const productName=userObj.name;
+      if(method==3){
+        console.log("Case 3");
+        let idProduct=variables.id_product;
+        let productName=variables.name;
+        idProduct=idProduct.toString();
+        productName=productName.toString();
+        console.log('Name ' +productName+ +' '+typeof(productName) +' id '+ idProduct +' '+typeof(idProduct));
         client2.addProducts({id:idProduct,name:productName},(err, data) => {
           if(err){
-            callback(null,"0");
+            console.log(err);   // Se procesa y visualiza por consola el error.
           } else {
-            callback(null,data);
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
           }
         })
       }
       //GetInventoryLastIdd
-      case 4:{
-        client2.GetInventoryLastIdd((err, data) => {
+      if(method==4){
+        console.log("Case 4");
+        client2.GetLastIdd({},(err, data) => {
           if(err){
-            callback(null,"0");
+            console.log(err);   // Se procesa y visualiza por consola el error.
           } else {
-            callback(null,data);
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
           }
         })
       }
-      //AddProduct to car
-      case 5:{
-        const userArray = variables[username];
-        const userObj = userArray[0].variables; 
-        const idProduct=userObj.id_product;
-        const productName=userObj.name;
-        client.AddProduct({id:idProduct,name:productName,userName:username},(err, data) => {
-          if(err){
-            callback(null,"0");
-          } else {
-            callback(null,data);
-          }
-        })
-      }
-      //DeleteProduct from car
-      case 6:{
-        const userArray = variables[username];
-        const userObj = userArray[0].variables; 
-        const idProduct=userObj.id_product;
-        const productName=userObj.name;
-        client.DeleteProduct({id:idProduct,name:productName,userName:username},(err, data) => {
-          if(err){
-            callback(null,"0");
-          } else {
-            callback(null,data);
-          }
-        })}
-    }
   }
-  
-}
 
 //verificar si hay instrucciones
 function instrucciones(){
@@ -203,12 +179,17 @@ function instrucciones(){
       for (const user in existingJSON) {
         if (user !== "userName2") {
           const values = existingJSON[user];
-          for (let i = 0; i < values.length;) {
-            const { method, variables } = values[i];
-            doSomethingForKey(user, i.toString(), method, variables);
-            deleteFirstFromUser(user)
+          for (let i = 0; i < values.length;i++) {
+            const inside = JSON.stringify(values[i]);
+            const utilidad = JSON.parse(inside);
+            console.log("ACA "+utilidad);
+            const method = utilidad.metodo; 
+            const variables = utilidad.variables; 
+            console.log("User "+ user+" metodo "+ method+ " variables "+variables);
+            doSomethingForKey(user, method, JSON.stringify(variables));
           }
-          deleteUserFromQueue(user);
+          if (user !== "userName2"){
+          deleteUserFromQueue(user);}
         }
       }
     }
@@ -240,15 +221,16 @@ server.addService(proto.ReplicationService.service, {
     const password = call.request.password; 
     const user = call.request.user; 
     const variablesString = call.request.variables;
-    const variables = JSON.parse(variablesString);
-    console.log("User " + user + " method " + method + " password "+ password + " variables " + variables);
+    const correctedString = variablesString.replace(/'/g, '"').replace(/([^{\s:,]+)(\s*:)/g, '"$1"$2');
+    const variables = JSON.parse(correctedString);
     if(method!=1){
     if(findUser(user,password)){
+      console.log("Hola");
       addToQueue(user,method,variables);
-      callback(null,"1");
+      callback(null, 1);
       }
     else{
-      callback(null,"0");
+      callback(null,0);
       }
     }
     else{

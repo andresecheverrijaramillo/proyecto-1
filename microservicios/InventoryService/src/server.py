@@ -14,16 +14,16 @@ class InventoryService(Service_pb2_grpc.InventoryServiceServicer):
             print("inventory: ")
             inventory = json.loads(productList.read())
         print(str(inventory["products"]))
-        my_string = str(json.dumps(inventory["products"]))
-        print(my_string)
-        print(type(my_string))
-        return Service_pb2.Inventory(my_string)
+        #my_string = str(json.dumps(inventory["products"]))
+        #print(my_string)
+        print(type(str(inventory["products"])))
+        return Service_pb2.Inventory(Inv=str(inventory["products"]))
     
     def addProducts(self, request, context):
         productID = str(request.id)
         productName = str(request.name)
         replicate=False
-        product={{"id":productID,"name": productName}}
+        producto={"id":productID,"name": productName}
         print("\nRequest received. Handling product "+productID+" with name "+productName)
         with open("inventory.json","r") as productList:
             inventory = json.loads(productList.read())
@@ -35,17 +35,21 @@ class InventoryService(Service_pb2_grpc.InventoryServiceServicer):
             return Service_pb2.TransactionResponse(status_code=0)
         else:
             print("\nRequest received. Product ID: "+productID+" does not exist in this inventory. It will be added")
-            inventory['products'].append(product)
+            inventory['products'].append(producto)
+            print(inventory)
             with open('inventory.json', 'w') as f:
                 json.dump(inventory, f)
             return Service_pb2.TransactionResponse(status_code=1)
     
-    def GetInventoryLastIdd(self, request, context):
+    def GetLastIdd(self, request, context):
         print("Request is received: " + str(request))
         with open("inventory.json","r") as productList:
             inventory = json.loads(productList.read())
         x = len(inventory['products'])+1
-        return Service_pb2.Inventory(x)
+        x=str(x)
+        print(x)
+        print(type(x))
+        return Service_pb2.LastIdd(LIdd=x)
     
     
 

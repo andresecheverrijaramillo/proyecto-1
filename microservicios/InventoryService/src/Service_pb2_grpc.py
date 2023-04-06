@@ -19,12 +19,34 @@ class InventoryServiceStub(object):
                 request_serializer=Service__pb2.Request.SerializeToString,
                 response_deserializer=Service__pb2.Inventory.FromString,
                 )
+        self.GetLastIdd = channel.unary_unary(
+                '/InventoryService/GetLastIdd',
+                request_serializer=Service__pb2.Request.SerializeToString,
+                response_deserializer=Service__pb2.LastIdd.FromString,
+                )
+        self.addProducts = channel.unary_unary(
+                '/InventoryService/addProducts',
+                request_serializer=Service__pb2.product.SerializeToString,
+                response_deserializer=Service__pb2.TransactionResponse.FromString,
+                )
 
 
 class InventoryServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetInventory(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetLastIdd(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def addProducts(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -37,6 +59,16 @@ def add_InventoryServiceServicer_to_server(servicer, server):
                     servicer.GetInventory,
                     request_deserializer=Service__pb2.Request.FromString,
                     response_serializer=Service__pb2.Inventory.SerializeToString,
+            ),
+            'GetLastIdd': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetLastIdd,
+                    request_deserializer=Service__pb2.Request.FromString,
+                    response_serializer=Service__pb2.LastIdd.SerializeToString,
+            ),
+            'addProducts': grpc.unary_unary_rpc_method_handler(
+                    servicer.addProducts,
+                    request_deserializer=Service__pb2.product.FromString,
+                    response_serializer=Service__pb2.TransactionResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -62,5 +94,39 @@ class InventoryService(object):
         return grpc.experimental.unary_unary(request, target, '/InventoryService/GetInventory',
             Service__pb2.Request.SerializeToString,
             Service__pb2.Inventory.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetLastIdd(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/InventoryService/GetLastIdd',
+            Service__pb2.Request.SerializeToString,
+            Service__pb2.LastIdd.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def addProducts(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/InventoryService/addProducts',
+            Service__pb2.product.SerializeToString,
+            Service__pb2.TransactionResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -1,12 +1,1 @@
-{
-    "products": [
-        {
-            "id": "0",
-            "name": "test"
-        },
-        {
-            "id": "1",
-            "name": "new_test"
-        }
-    ]
-}
+{"products": [{"id": "0", "name": "test"}, {"id": "4", "name": "producto"}, {"id": "5", "name": "producto"}]}

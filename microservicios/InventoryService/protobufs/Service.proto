@@ -1,20 +1,21 @@
 syntax = "proto3";
 
 message Inventory{
-    string Inventory = 8;
+    string Inv = 1;
 }
 
 message Request{
 }
 
 message LastIdd{
-    string LastIdd = 8;
+    string LIdd = 1;
 }
 
-message Product{
-    string id = 1;
-    string name = 2;
-}
+
+message product {
+    string id = 3;
+    string name = 4;
+  }
 
 message TransactionResponse{
     int32 status_code = 1;
@@ -22,6 +23,6 @@ message TransactionResponse{
 
 service InventoryService {
     rpc GetInventory(Request) returns (Inventory){}
-    rpc GetInventoryLastIdd(Request) returns (LastIdd){}
-    rpc addProducts(Product) returns (TransactionResponse){}
+    rpc GetLastIdd(Request) returns (LastIdd){}
+    rpc addProducts(product) returns (TransactionResponse) {}
 }

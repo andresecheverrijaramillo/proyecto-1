@@ -24,6 +24,7 @@ class InventoryService(Service_pb2_grpc.InventoryServiceServicer):
         productName = str(request.name)
         replicate=False
         producto={"id":productID,"name": productName}
+        
         print("\nRequest received. Handling product "+productID+" with name "+productName)
         with open("inventory.json","r") as productList:
             inventory = json.loads(productList.read())

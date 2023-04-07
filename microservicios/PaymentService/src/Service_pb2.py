@@ -13,19 +13,17 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rService.proto\"\x1d\n\x07Product\x12\x12\n\nid_product\x18\x01 \x01(\x05\"*\n\x13TransactionResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\"\"\n\x0bProductList\x12\x13\n\x0bproduct_ids\x18\x08 \x03(\x05\x32\xa8\x01\n\x0eProductService\x12.\n\nAddProduct\x12\x08.Product\x1a\x14.TransactionResponse\"\x00\x12\x31\n\rDeleteProduct\x12\x08.Product\x1a\x14.TransactionResponse\"\x00\x12\x33\n\x0b\x42uyProducts\x12\x0c.ProductList\x1a\x14.TransactionResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rService.proto\"?\n\tProductps\x12\x12\n\nid_product\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x10\n\x08userName\x18\x03 \x01(\t\"*\n\x13TransactionResponse\x12\x13\n\x0bstatus_code\x18\x01 \x01(\x05\x32w\n\x0eProductService\x12\x30\n\nAddProduct\x12\n.Productps\x1a\x14.TransactionResponse\"\x00\x12\x33\n\rDeleteProduct\x12\n.Productps\x1a\x14.TransactionResponse\"\x00\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'Service_pb2', globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _PRODUCT._serialized_start=17
-  _PRODUCT._serialized_end=46
-  _TRANSACTIONRESPONSE._serialized_start=48
-  _TRANSACTIONRESPONSE._serialized_end=90
-  _PRODUCTLIST._serialized_start=92
-  _PRODUCTLIST._serialized_end=126
-  _PRODUCTSERVICE._serialized_start=129
-  _PRODUCTSERVICE._serialized_end=297
+  _PRODUCTPS._serialized_start=17
+  _PRODUCTPS._serialized_end=80
+  _TRANSACTIONRESPONSE._serialized_start=82
+  _TRANSACTIONRESPONSE._serialized_end=124
+  _PRODUCTSERVICE._serialized_start=126
+  _PRODUCTSERVICE._serialized_end=245
 # @@protoc_insertion_point(module_scope)

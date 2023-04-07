@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-message Product{
+message Productps{
     string id_product = 1;
-    string name = 1;
-    string userName = 1;
+    string name = 2;
+    string userName = 3;
 }
 
 message TransactionResponse{
@@ -11,6 +11,6 @@ message TransactionResponse{
 }
 
 service ProductService{
-    rpc AddProduct(Product) returns (TransactionResponse) {}
-    rpc DeleteProduct(Product) returns (TransactionResponse) {}
+    rpc AddProduct(Productps) returns (TransactionResponse) {}
+    rpc DeleteProduct(Productps) returns (TransactionResponse) {}
 }

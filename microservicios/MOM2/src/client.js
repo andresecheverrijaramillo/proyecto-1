@@ -168,6 +168,36 @@ function doSomethingForKey(user, method, strVariables) {
           }
         })
       }
+      if(method==5){
+        console.log("Case 5");
+        let idProduct=variables.id_product;
+        let productName=variables.name;
+        idProduct=idProduct.toString();
+        productName=productName.toString();
+        console.log(idProduct+ " "+productName+ " "+user);
+        client.AddProduct({id_product:idProduct, name:productName, userName:user},(err, data) =>{
+          if(err){
+            console.log(err);   // Se procesa y visualiza por consola el error.
+          } else {
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
+          }
+        })
+      }
+      if(method==6){
+        console.log("Case 6");
+        let idProduct=variables.id_product;
+        let productName=variables.name;
+        idProduct=idProduct.toString();
+        productName=productName.toString();
+        console.log(idProduct+ " "+productName+ " "+user);
+        client.DeleteProduct({id_product:idProduct, name:productName, userName:user},(err, data) =>{
+          if(err){
+            console.log(err);   // Se procesa y visualiza por consola el error.
+          } else {
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
+          }
+        })
+      }
   }
 
 //verificar si hay instrucciones

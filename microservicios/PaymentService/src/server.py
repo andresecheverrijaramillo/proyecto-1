@@ -10,39 +10,70 @@ class ProductService(Service_pb2_grpc.ProductServiceServicer):
    
     def AddProduct(self, request, context):
         print("Request is received: " + str(request))
-        productID = str(request.id)
+        productID = str(request.id_product)
         productName = str(request.name)
         userName = str(request.userName)
-        product={{"id":productID,"name": productName}}
+        print(productID,productName,userName)
+        product={"id":productID,"name": productName}
         print("\nRequest received. Handling product "+productID+" with name "+productName)
         with open("car.json","r") as productList:
             car = json.loads(productList.read())
-        if productID in car[userName].keys():
-            print("\n Product with that id already added to the car")
-            return Service_pb2.TransactionResponse(status_code=0)
+        print(car)
+        print('hola')
+        if userName in car:
+            id_list = []
+            for item in car[userName]:
+                if "id" in item:
+                    id_list.append(item["id"])
+            if productID in id_list:
+                print("\n Product with that id already added to the car")
+                return Service_pb2.TransactionResponse(status_code=0)
+            else:
+                print("\nRequest received. Product ID: "+productID+" does not exist in this car. It will be added")
+                print(car[userName])
+                print(product)
+                print('hola')
+                if isinstance(car[userName], list):
+                    car[userName].append(product)
+                else:
+                    car[userName] = [car[userName], product]
+                print(car[userName])
+                with open('car.json', 'w') as f:
+                    json.dump(car, f)
+                return Service_pb2.TransactionResponse(status_code=1)
         else:
-            print("\nRequest received. Product ID: "+productID+" does not exist in this car. It will be added")
-            car[userName].append(product)
+            car[userName]=product
             with open('car.json', 'w') as f:
-                json.dump(car, f)
+                    json.dump(car, f)
             return Service_pb2.TransactionResponse(status_code=1)
     
         
     def DeleteProduct(self, request, context):
         print("Request is received: " + str(request))
-        productID = str(request.id)
+        productID = str(request.id_product)
         productName = str(request.name)
         userName = str(request.userName)
         replicate=False
         print("\nRequest received. Handling product "+productID+" with name "+productName)
         with open("car.json","r") as productList:
             car = json.loads(productList.read())
-        for carProduct in car[userName]:
-            if carProduct["id"] == productID:
+        if isinstance(car[userName], list):
+            indexToDelete = None
+            for i, item in enumerate(car[userName]):
+                if item["id"] == productID:
+                    indexToDelete = i
+                    break
+            if indexToDelete is not None:
+                del car[userName][indexToDelete]
                 replicate=True
-                car[userName].remove(carProduct)
+        else:
+            if car[userName]["id"] == productID:
+                del car[userName]
+                replicate=True
         if replicate:
             print("\n Product "+ productName +" eliminated from the user "+ userName +" car")
+            with open('car.json', 'w') as f:
+                    json.dump(car, f)
             return Service_pb2.TransactionResponse(status_code=0)
         else:
             print("\n Product "+ productName +" doesn't exist in the user "+ userName +" car")

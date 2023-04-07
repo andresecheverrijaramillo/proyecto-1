@@ -16,17 +16,12 @@ class ProductServiceStub(object):
         """
         self.AddProduct = channel.unary_unary(
                 '/ProductService/AddProduct',
-                request_serializer=Service__pb2.Product.SerializeToString,
+                request_serializer=Service__pb2.Productps.SerializeToString,
                 response_deserializer=Service__pb2.TransactionResponse.FromString,
                 )
         self.DeleteProduct = channel.unary_unary(
                 '/ProductService/DeleteProduct',
-                request_serializer=Service__pb2.Product.SerializeToString,
-                response_deserializer=Service__pb2.TransactionResponse.FromString,
-                )
-        self.BuyProducts = channel.unary_unary(
-                '/ProductService/BuyProducts',
-                request_serializer=Service__pb2.ProductList.SerializeToString,
+                request_serializer=Service__pb2.Productps.SerializeToString,
                 response_deserializer=Service__pb2.TransactionResponse.FromString,
                 )
 
@@ -46,28 +41,17 @@ class ProductServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def BuyProducts(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
 
 def add_ProductServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'AddProduct': grpc.unary_unary_rpc_method_handler(
                     servicer.AddProduct,
-                    request_deserializer=Service__pb2.Product.FromString,
+                    request_deserializer=Service__pb2.Productps.FromString,
                     response_serializer=Service__pb2.TransactionResponse.SerializeToString,
             ),
             'DeleteProduct': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteProduct,
-                    request_deserializer=Service__pb2.Product.FromString,
-                    response_serializer=Service__pb2.TransactionResponse.SerializeToString,
-            ),
-            'BuyProducts': grpc.unary_unary_rpc_method_handler(
-                    servicer.BuyProducts,
-                    request_deserializer=Service__pb2.ProductList.FromString,
+                    request_deserializer=Service__pb2.Productps.FromString,
                     response_serializer=Service__pb2.TransactionResponse.SerializeToString,
             ),
     }
@@ -92,7 +76,7 @@ class ProductService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/ProductService/AddProduct',
-            Service__pb2.Product.SerializeToString,
+            Service__pb2.Productps.SerializeToString,
             Service__pb2.TransactionResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -109,24 +93,7 @@ class ProductService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/ProductService/DeleteProduct',
-            Service__pb2.Product.SerializeToString,
-            Service__pb2.TransactionResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def BuyProducts(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/ProductService/BuyProducts',
-            Service__pb2.ProductList.SerializeToString,
+            Service__pb2.Productps.SerializeToString,
             Service__pb2.TransactionResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

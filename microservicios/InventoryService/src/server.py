@@ -24,7 +24,7 @@ class InventoryService(Service_pb2_grpc.InventoryServiceServicer):
         productName = str(request.name)
         replicate=False
         producto={"id":productID,"name": productName}
-        
+        productName = descifrado_cesar(productName, 3)
         print("\nRequest received. Handling product "+productID+" with name "+productName)
         with open("inventory.json","r") as productList:
             inventory = json.loads(productList.read())
@@ -52,7 +52,20 @@ class InventoryService(Service_pb2_grpc.InventoryServiceServicer):
         print(type(x))
         return Service_pb2.LastIdd(LIdd=x)
     
-    
+def descifrado_cesar(texto_cifrado, desplazamiento):
+    resultado = ""
+    for caracter in texto_cifrado:
+        if caracter.isalpha():
+            codigo_ascii = ord(caracter)
+            if codigo_ascii >= 65 and codigo_ascii <= 90:
+                # Letra mayúscula
+                resultado += chr((codigo_ascii - desplazamiento - 65) % 26 + 65)
+            elif codigo_ascii >= 97 and codigo_ascii <= 122:
+                # Letra minúscula
+                resultado += chr((codigo_ascii - desplazamiento - 97) % 26 + 97)
+        else:
+            resultado += caracter
+    return resultado
 
 
 def serve():

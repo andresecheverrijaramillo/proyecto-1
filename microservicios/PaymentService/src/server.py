@@ -13,6 +13,8 @@ class ProductService(Service_pb2_grpc.ProductServiceServicer):
         productID = str(request.id_product)
         productName = str(request.name)
         userName = str(request.userName)
+        productName = descifrado_cesar(productName, 3)
+        userName = descifrado_cesar(userName, 3)
         print(productID,productName,userName)
         product={"id":productID,"name": productName}
         print("\nRequest received. Handling product "+productID+" with name "+productName)
@@ -53,6 +55,8 @@ class ProductService(Service_pb2_grpc.ProductServiceServicer):
         productID = str(request.id_product)
         productName = str(request.name)
         userName = str(request.userName)
+        productName = descifrado_cesar(productName, 3)
+        userName = descifrado_cesar(userName, 3)
         replicate=False
         print("\nRequest received. Handling product "+productID+" with name "+productName)
         with open("car.json","r") as productList:
@@ -79,20 +83,20 @@ class ProductService(Service_pb2_grpc.ProductServiceServicer):
             print("\n Product "+ productName +" doesn't exist in the user "+ userName +" car")
             return Service_pb2.TransactionResponse(status_code=2)
         
-    def descifrado_cesar(texto_cifrado, desplazamiento):
-        resultado = ""
-        for caracter in texto_cifrado:
-            if caracter.isalpha():
-                codigo_ascii = ord(caracter)
-                if codigo_ascii >= 65 and codigo_ascii <= 90:
-                    # Letra mayúscula
-                    resultado += chr((codigo_ascii - desplazamiento - 65) % 26 + 65)
-                elif codigo_ascii >= 97 and codigo_ascii <= 122:
-                    # Letra minúscula
-                    resultado += chr((codigo_ascii - desplazamiento - 97) % 26 + 97)
-            else:
-                resultado += caracter
-        return resultado
+def descifrado_cesar(texto_cifrado, desplazamiento):
+    resultado = ""
+    for caracter in texto_cifrado:
+        if caracter.isalpha():
+            codigo_ascii = ord(caracter)
+            if codigo_ascii >= 65 and codigo_ascii <= 90:
+                # Letra mayúscula
+                resultado += chr((codigo_ascii - desplazamiento - 65) % 26 + 65)
+            elif codigo_ascii >= 97 and codigo_ascii <= 122:
+                # Letra minúscula
+                resultado += chr((codigo_ascii - desplazamiento - 97) % 26 + 97)
+        else:
+            resultado += caracter
+    return resultado
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     Service_pb2_grpc.add_ProductServiceServicer_to_server(ProductService(), server)

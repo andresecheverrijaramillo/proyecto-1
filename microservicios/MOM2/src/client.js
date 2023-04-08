@@ -148,6 +148,8 @@ function doSomethingForKey(user, method, strVariables) {
         let productName=variables.name;
         idProduct=idProduct.toString();
         productName=productName.toString();
+        console.log("antes de cifrar " + productName)
+        productName = cifradoCesar(productName, 3)
         console.log('Name ' +productName+ +' '+typeof(productName) +' id '+ idProduct +' '+typeof(idProduct));
         client2.addProducts({id:idProduct,name:productName},(err, data) => {
           if(err){
@@ -174,6 +176,10 @@ function doSomethingForKey(user, method, strVariables) {
         let productName=variables.name;
         idProduct=idProduct.toString();
         productName=productName.toString();
+        console.log("antes de cifrar " + productName)
+        productName = cifradoCesar(productName, 3)
+        console.log("antes de cifrar " + user)
+        user = cifradoCesar(user, 3)
         console.log(idProduct+ " "+productName+ " "+user);
         client.AddProduct({id_product:idProduct, name:productName, userName:user},(err, data) =>{
           if(err){
@@ -189,6 +195,10 @@ function doSomethingForKey(user, method, strVariables) {
         let productName=variables.name;
         idProduct=idProduct.toString();
         productName=productName.toString();
+        console.log("antes de cifrar " + productName)
+        productName = cifradoCesar(productName, 3)
+        console.log("antes de cifrar " + user)
+        user = cifradoCesar(user, 3)
         console.log(idProduct+ " "+productName+ " "+user);
         client.DeleteProduct({id_product:idProduct, name:productName, userName:user},(err, data) =>{
           if(err){

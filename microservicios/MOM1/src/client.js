@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import grpc from '@grpc/grpc-js';
 import protoLoader from '@grpc/proto-loader';
 import fs from 'fs';
+import { stringify } from 'querystring';
 
 dotenv.config()
 
@@ -37,17 +38,25 @@ const client2 = new inventoryService(REMOTE_HOST2, grpc.credentials.createInsecu
 function checkServer() {
   externalServer.waitForReady(new Date().setTime(new Date().getTime() + 5000), (err) => {
     if (err) {
-      console.log('El servidor externo 3 está caído.');
-      // Si el servidor externo 3 está caído, continuar verificando
+      console.log('El servidor externo MOM está caído.');
+      // Si el servidor externo está caído, continuar verificando
       global.mainServer=true;
       instrucciones();
       setTimeout(checkServer, 5000);
     } 
     else {
-      console.log('El servidor externo 3 está prendido.');
-      // Si el servidor externo 3 está prendido, continuar con la ejecución del servidor
-      if(global.mainServer){
-        //metodo de actualizar el otro mom
+      console.log('El servidor externo MOM está prendido.');
+      // Si el servidor externo está prendido, continuar con la ejecución del servidor
+      if(global.mainServer==true){
+        const usersString = fs.readFileSync('users.json').toString();
+        const queuesString = fs.readFileSync('queues.json').toString();
+        externalServer.UpdateData({queue:queuesString,users:usersString},(err,data) => {
+          if(err){
+            console.log(err);   // Se procesa y visualiza por consola el error.
+          } else {
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
+          }
+        })
         instrucciones();
       }
       setTimeout(checkServer, 5000);
@@ -86,10 +95,15 @@ function findUser(userName, userPassword) {
 }
 //añadir una peticion a la queue
 function addToQueue(userName, method, variables) {
+  console.log("Hola desde queue");
   const existingJSON = JSON.parse(fs.readFileSync('queues.json', 'utf-8'));
-  const newJSON = { [userName]: [{ "method": method, "variables": variables }] }
-  const combinedJSON = { ...existingJSON, ...newJSON };
-  fs.writeFileSync('queues.json', JSON.stringify(combinedJSON));
+  if (existingJSON[userName]) {
+    existingJSON[userName].push({ "metodo": method, "variables": variables });
+  } else {
+    existingJSON[userName] = [{ "metodo": method, "variables": variables }];
+  }
+  fs.writeFileSync('queues.json', JSON.stringify(existingJSON,null,4));
+  console.log(existingJSON);
 }
 
 //verificar si tiene algo en la cola
@@ -119,78 +133,90 @@ function deleteFirstFromUser(userName) {
     fs.writeFileSync('queues.json', JSON.stringify(existingJSON));
   }
 }
+
 //ejecucion de la instruccion en cola
-function doSomethingForKey(user, key, value) {
-  const method = value.method;
-  const variables = value.variables;
-  while(hasData(key)){
-    key
-    switch (method) {
+function doSomethingForKey(user, method, strVariables) {
+  console.log("metodo "+method + " variables: " + strVariables);
+  const variables = JSON.parse(strVariables);
       //getinventory
-      case 2:{
-        client2.GetInventory((err, data) => {
+      if(method==2){
+        console.log("Case 2");
+        client2.GetInventory({},(err,data) => {
           if(err){
-            callback(null,"0");
+            console.log(err);   // Se procesa y visualiza por consola el error.
           } else {
-            callback(null,data);
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
           }
         })
       }
       //addProducts to inventory
-      case 3:{
-        const userArray = variables[username];
-        const userObj = userArray[0].variables; 
-        const idProduct=userObj.id_product;
-        const productName=userObj.name;
+      if(method==3){
+        console.log("Case 3");
+        let idProduct=variables.id_product;
+        let productName=variables.name;
+        idProduct=idProduct.toString();
+        productName=productName.toString();
+        console.log("antes de cifrar " + productName)
+        productName = cifradoCesar(productName, 3)
+        console.log('Name ' +productName+ +' '+typeof(productName) +' id '+ idProduct +' '+typeof(idProduct));
         client2.addProducts({id:idProduct,name:productName},(err, data) => {
           if(err){
-            callback(null,"0");
+            console.log(err);   // Se procesa y visualiza por consola el error.
           } else {
-            callback(null,data);
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
           }
         })
       }
       //GetInventoryLastIdd
-      case 4:{
-        client2.GetInventoryLastIdd((err, data) => {
+      if(method==4){
+        console.log("Case 4");
+        client2.GetLastIdd({},(err, data) => {
           if(err){
-            callback(null,"0");
+            console.log(err);   // Se procesa y visualiza por consola el error.
           } else {
-            callback(null,data);
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
           }
         })
       }
-      //AddProduct to car
-      case 5:{
-        const userArray = variables[username];
-        const userObj = userArray[0].variables; 
-        const idProduct=userObj.id_product;
-        const productName=userObj.name;
-        client.AddProduct({id:idProduct,name:productName,userName:username},(err, data) => {
+      if(method==5){
+        console.log("Case 5");
+        let idProduct=variables.id_product;
+        let productName=variables.name;
+        idProduct=idProduct.toString();
+        productName=productName.toString();
+        console.log("antes de cifrar " + productName)
+        productName = cifradoCesar(productName, 3)
+        console.log("antes de cifrar " + user)
+        user = cifradoCesar(user, 3)
+        console.log(idProduct+ " "+productName+ " "+user);
+        client.AddProduct({id_product:idProduct, name:productName, userName:user},(err, data) =>{
           if(err){
-            callback(null,"0");
+            console.log(err);   // Se procesa y visualiza por consola el error.
           } else {
-            callback(null,data);
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
           }
         })
       }
-      //DeleteProduct from car
-      case 6:{
-        const userArray = variables[username];
-        const userObj = userArray[0].variables; 
-        const idProduct=userObj.id_product;
-        const productName=userObj.name;
-        client.DeleteProduct({id:idProduct,name:productName,userName:username},(err, data) => {
+      if(method==6){
+        console.log("Case 6");
+        let idProduct=variables.id_product;
+        let productName=variables.name;
+        idProduct=idProduct.toString();
+        productName=productName.toString();
+        console.log("antes de cifrar " + productName)
+        productName = cifradoCesar(productName, 3)
+        console.log("antes de cifrar " + user)
+        user = cifradoCesar(user, 3)
+        console.log(idProduct+ " "+productName+ " "+user);
+        client.DeleteProduct({id_product:idProduct, name:productName, userName:user},(err, data) =>{
           if(err){
-            callback(null,"0");
+            console.log(err);   // Se procesa y visualiza por consola el error.
           } else {
-            callback(null,data);
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
           }
-        })}
-    }
+        })
+      }
   }
-  
-}
 
 //verificar si hay instrucciones
 function instrucciones(){
@@ -201,18 +227,24 @@ function instrucciones(){
       for (const user in existingJSON) {
         if (user !== "userName2") {
           const values = existingJSON[user];
-          for (let i = 0; i < values.length;) {
-            const { method, variables } = values[i];
-            doSomethingForKey(user, i.toString(), method, variables);
-            deleteFirstFromUser(user)
+          for (let i = 0; i < values.length;i++) {
+            const inside = JSON.stringify(values[i]);
+            const utilidad = JSON.parse(inside);
+            console.log("ACA "+utilidad);
+            const method = utilidad.metodo; 
+            const variables = utilidad.variables; 
+            console.log("User "+ user+" metodo "+ method+ " variables "+variables);
+            doSomethingForKey(user, method, JSON.stringify(variables));
           }
+          if (user !== "userName2"){
+          deleteUserFromQueue(user);}
         }
       }
     }
   }
 }
 
-  //cifrar
+//cifrar
   function cifradoCesar(texto, desplazamiento) {
     let resultado = "";
     for (let i = 0; i < texto.length; i++) {
@@ -228,7 +260,7 @@ function instrucciones(){
       resultado += caracter;
     }
     return resultado;
-  }
+}
 
 //Servicios
 server.addService(proto.ReplicationService.service, {
@@ -237,27 +269,51 @@ server.addService(proto.ReplicationService.service, {
     const password = call.request.password; 
     const user = call.request.user; 
     const variablesString = call.request.variables;
-    const variables = JSON.parse(variablesString);
+    const correctedString = variablesString.replace(/'/g, '"').replace(/([^{\s:,]+)(\s*:)/g, '"$1"$2');
+    const variables = JSON.parse(correctedString);
     if(method!=1){
     if(findUser(user,password)){
+      console.log("Hola");
       addToQueue(user,method,variables);
-      callback(null,"1");
+      callback(null, 1);
       }
-    else{
-      callback(null,"0");
+    }
+    if(method == 5 || method == 5){
+      if(method==1){
+        addUser(user,password);
+        callback(null, 1);
+      }
+      if(method==7){
+        deleteUserFromQueue(user);
+        callback(null, 1);
       }
     }
     else{
-      addUser(user,password);
+      callback(null, 0);
     }
   },
+  UpdateData: (call, callback) => {
+    let newQueues = call.request.queue; 
+    let newUsers = call.request.users;
+    newUsers = JSON.parse(newUsers);
+    newQueues = JSON.parse(newQueues);
+    let usersFile = fs.readFileSync('users.json');
+    let queuesFile = fs.readFileSync('queues.json');
+    let users = JSON.parse(usersFile);
+    let queues = JSON.parse(queuesFile);
+    users = newUsers;
+    queues = newQueues;
+    fs.writeFileSync('users.json', JSON.stringify(users));
+    fs.writeFileSync('queues.json', JSON.stringify(queues));
+    callback(null, null);
+   },
   }
 )
 
 server.bindAsync(
-  "127.0.0.1:8080", grpc.ServerCredentials.createInsecure(),
+  "127.0.0.1:8081", grpc.ServerCredentials.createInsecure(),
   (error, port) => {
-    console.log("Server running at 127.0.0.1:8080");
+    console.log("Server running at 127.0.0.1:8081");
     server.start();
     checkServer();
   }

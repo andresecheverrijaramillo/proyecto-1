@@ -38,17 +38,25 @@ const client2 = new inventoryService(REMOTE_HOST2, grpc.credentials.createInsecu
 function checkServer() {
   externalServer.waitForReady(new Date().setTime(new Date().getTime() + 5000), (err) => {
     if (err) {
-      //console.log('El servidor externo MOM está caído.');
+      console.log('El servidor externo MOM está caído.');
       // Si el servidor externo está caído, continuar verificando
       global.mainServer=true;
       instrucciones();
       setTimeout(checkServer, 5000);
     } 
     else {
-      //console.log('El servidor externo MOM está prendido.');
+      console.log('El servidor externo MOM está prendido.');
       // Si el servidor externo está prendido, continuar con la ejecución del servidor
-      if(global.mainServer){
-        //metodo de actualizar el otro mom
+      if(global.mainServer==true){
+        const usersString = fs.readFileSync('users.json').toString();
+        const queuesString = fs.readFileSync('queues.json').toString();
+        externalServer.UpdateData({queue:queuesString,users:usersString},(err,data) => {
+          if(err){
+            console.log(err);   // Se procesa y visualiza por consola el error.
+          } else {
+            console.log('Response received from remote service:', data); // Se procesa y visualiza el mensaje de respuesta recibido.
+          }
+        })
         instrucciones();
       }
       setTimeout(checkServer, 5000);
@@ -269,14 +277,36 @@ server.addService(proto.ReplicationService.service, {
       addToQueue(user,method,variables);
       callback(null, 1);
       }
-    else{
-      callback(null,0);
+    }
+    if(method == 5 || method == 5){
+      if(method==1){
+        addUser(user,password);
+        callback(null, 1);
+      }
+      if(method==7){
+        deleteUserFromQueue(user);
+        callback(null, 1);
       }
     }
     else{
-      addUser(user,password);
+      callback(null, 0);
     }
   },
+  UpdateData: (call, callback) => {
+    let newQueues = call.request.queue; 
+    let newUsers = call.request.users;
+    newUsers = JSON.parse(newUsers);
+    newQueues = JSON.parse(newQueues);
+    let usersFile = fs.readFileSync('users.json');
+    let queuesFile = fs.readFileSync('queues.json');
+    let users = JSON.parse(usersFile);
+    let queues = JSON.parse(queuesFile);
+    users = newUsers;
+    queues = newQueues;
+    fs.writeFileSync('users.json', JSON.stringify(users));
+    fs.writeFileSync('queues.json', JSON.stringify(queues));
+    callback(null, null);
+   },
   }
 )
 

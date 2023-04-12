@@ -1,19 +1,19 @@
-# **Laboratorio N1**
+# **Proyecto 1**
 **Curso:** Tópicos Especiales en Telemática <br>
-**Título:** Comunicación entre Procesos Remotos: gRPC.<br>
-**Estudiante** Andrés Echeverri Jaramillo<br>
+**Título:** Diseño e Implementación de un Middleware que Implemente un Servicio de Mensajería <br>
+**Estudiante** Andrés Echeverri Jaramillo, Salomón Vélez Pérez, Jose Manuel Fonseca<br>
 ### **1. Descripción**
-En este laboratorio se desarrollaron 3 microservicios los cuales dos estan hechos en Python: el servicio de pagos (Payment) y el servicio de inventario (Inventory), y uno en Node.js: el servicio de entregas (Delivery), cada una tiene su archivo proto correspondiente para la comunicación con gRPC.
+En este laboratorio se desarrollaron 2 microservicios los cuales ambos están hecho en el lenguaje de programación Python: el servicio de pagos (Payment) y el servicio de inventario (Inventory), ademas de los 2 MOM, los cuales fueron implementados usando Nodejs
 
-### **2. Estructura**
-![Estructura](Estructura.png)
+### **3. Diseño**
+Ver el .jpg adjunto en el github con el nombre de "Arquitectura.jpg" <br />
 
-### **3. Arquitectura**
-Se uso un estilo de arquitectura de microservicios, la cual se comunica atravez de gRPC <br />
-### **4. Resultados**
-Se logra crear una comunicación de los servicios atravez de postman, permitiendo que cuando se tenga un cliente o un front end puede invocar los metodos de los diferentes servicios.<br />
-### **5. Descripción técnica de la solución implementada**
-Para los servicios de python se usaron las librerias: grpcio y grpcio-tools con las cuales con el comando " $ sudo python3 -m grpc_tools.protoc -I ../protobufs --python_out=. --pyi_out=. --grpc_python_out=. ../protobufs/Service.proto" crean las interfaces necesarias para la comunicación gRP, pero antes de esto se debia crear un archivo .proto que maneje los diferentes llamados a los metodos. En Node tambien debe existir el .proto pero en este caso en vez de instalar python y las librerias grpcio y grpcio-tools se instala es Node.js v19.X <br />
+### **4. Requerimientos**
+Para este prpyecto se necesita el compilador para archivos .NET, así como tener postman y protobuff instalados..<br />
+
+### **5. Análisis**
+ El proyecto está diseñado para poder comunicar los servicios entre ellos a traves de 1 de los MOM, para esto, se usa una comunicación grpc que usa los archivos .proto de los servicios. Desde el MOM, se pide a los microservicios una información, o se solicita que se haga un proceso, y estos responden a estas peticiones usando los métodos y clases implementados. Las peticiones se mandan con cierta información, que es el nombre de usuario, el nombre del producto y una constraseña, tanto el nombre del producto como el nombre del usuario se cifran usado el método de cifrado "Cesar", esto por cuestiones de seguridad, y una vez esta información es recibida por los microservicios, es desencriptada. <br />
+
 ### **6. Guía de uso (En local)**
 Para implementar el trabajo primero se tendra que acceder a los archivos de este, por lo tanto se duplicara el repositorio donde estan con el comando "git clone https://github.com/andresecheverrijaramillo/microservicios.git", ya cuando se tengan los archivos clonados se procedera a abrir tres terminales diferentes, una por cada servicio, y se ejecutaran los archivos server.py o server.js dependiendo del servicio, cabe aclarar que se necesitara tener python con las librerias grpcio y grpcio-tools, y Node.js v19.X para que se puedan ejecutar. Si no se tienen instalados se correran los siguientes comandos. <br />
 Python: <br />

@@ -9,7 +9,7 @@ En este laboratorio se desarrollaron 2 microservicios los cuales ambos están he
 Ver el .jpg adjunto en el github con el nombre de "Arquitectura.jpg" <br />
 
 ### **4. Requerimientos**
-Para este prpyecto se necesita el compilador para archivos .NET, así como tener postman y protobuff instalados..<br />
+Para este proyecto se necesita el compilador para archivos .NET y el lenguaje de programación Python, así como tener postman y protobuff instalados..<br />
 
 ### **5. Análisis**
  El proyecto está diseñado para poder comunicar los servicios entre ellos a traves de 1 de los MOM, para esto, se usa una comunicación grpc que usa los archivos .proto de los servicios. Desde el MOM, se pide a los microservicios una información, o se solicita que se haga un proceso, y estos responden a estas peticiones usando los métodos y clases implementados. Las peticiones se mandan con cierta información, que es el nombre de usuario, el nombre del producto y una constraseña, tanto el nombre del producto como el nombre del usuario se cifran usado el método de cifrado "Cesar", esto por cuestiones de seguridad, y una vez esta información es recibida por los microservicios, es desencriptada. <br />

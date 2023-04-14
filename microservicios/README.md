@@ -27,4 +27,30 @@ Node:
 $ sudo apt-get update <br />
 $ sudo apt-get upgrade <br />
 $ sudo curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs <br />
-Con esto se asegura que se puedan ejecutar, entonces en el momento que se ejecuten en las diferetes terminales cada una quedara como un servidor, los servidores tienen puertos asociados, el servidor de payment tiene el puerto 8080, el de inventory 8081 y el de Delivery el 8082. teniendo eso encuenta se abre postman para verficar que si funcionen, le decimos que vamos a probar una conección gRPC, en este caso que lo estamos ejecutando los tres server en una misma maquina la coneccion que vamos a probar o en otras palabras el url seria "localhost:####" en el numeral se pondria el puerto del servidor. Para que Postman sepa cuales son los metodos se importara el .proto respectivo como la API y ya se podran hacer las invocaciones de los diferentes metodos que tenga el .proto, en dicho caso de que no se entreguen los parametros que se necesiten o se entreguen mal, la peticion se mandara pero no se hara nada en la terminal del servidor se podra ver mejor esto, en el caso de que se mande se ejecutara sin problema y dara la respuesta que es.
+Con esto se asegura que se puedan ejecutar, entonces en el momento que se ejecuten en las diferetes terminales cada una quedara como un servidor, los servidores tienen puertos asociados, el servidor de payment tiene el puerto 8080, el de inventory 8081 y el de Delivery el 8082. teniendo eso encuenta se abre postman para verficar que si funcionen, le decimos que vamos a probar una conección gRPC, en este caso que lo estamos ejecutando los tres server en una misma maquina la coneccion que vamos a probar o en otras palabras el url seria "localhost:####" en el numeral se pondria el puerto del servidor. Para que Postman sepa cuales son los metodos se importara el .proto respectivo como la API y ya se podran hacer las invocaciones de los diferentes metodos que tenga el .proto, en dicho caso de que no se entreguen los parametros que se necesiten o se entreguen mal, la peticion se mandara pero no se hara nada en la terminal del servidor se podra ver mejor esto, en el caso de que se mande se ejecutara sin problema y dara la respuesta que es. <br />
+Cuando las librerias esten instaladas tenemos que abrir 4 consolas, una por cada servicio y una por cada MOM, en cada consola tenemos que llegar a la carpeta src y en los servicios ejecutar el comando python server.py, si se tiene python 3 seria python3 server.py, y para los archivos de node (los MOM) seria, node client.js <br />
+### **7. Guía de uso (En AWS)**
+En el caso de correrlos en AWS en vez de abrir 4 consolas tocaria iniciar 4 instancias, en los archivos de node modificar la direccion IP en los .env a la del otro MOM y los servicios, ademas tambien en el codigo toca cambiar la dirrecion a que en vez de locar sea la dirrecion de la IP de la maquina que se esta usando. 
+<br />
+### **8. Peticiones**
+Para hacerle una peticion al MOM se abrira postman y con una peticion GRPC con la direccion del MOM principal, y se pondra un mensaje con la siguiente estructura: <br />
+ {
+    "method" : 1,
+    "password" : "password123",
+    "user" : "Alejandro",
+    "variables" : "{id_product:'6',name:'producto'}"
+  }
+<br />
+Las variables corresponden a:
+method: Un numero del 1 al 7 los cuales representan diferentes instrucciones siendo:
+<br />
+1: Añadir usuario <br />
+2: Obtener el inventario <br />
+3: Añadir un producto al inventario <br />
+4: Obtener el ultimo ID del inventario <br />
+5: Añadir un producto al carrito de un usuario <br />
+6: Eliminar un producto al carrito de un usuario <br />
+7: Eliminar la cola de un usuario <br />
+password: La contaseña de un usuario
+user: nombre del usuario que hace la solicitud <br />
+variables: es un string que tiene forma de json: en el cual se pasaran los datos del producto que se va a tratar, estos serian id_product y name, siendo id_product el ID del producto y name el nombre del producto.
